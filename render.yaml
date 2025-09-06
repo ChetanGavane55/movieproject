@@ -1,0 +1,37 @@
+# Render Blueprint: Frontend (Vite static site) + Backend (Node/Express)
+
+services:
+  - type: web
+    name: movie-backend
+    env: node
+    rootDir: server
+    buildCommand: npm ci
+    startCommand: node index.js
+    autoDeploy: true
+    envVars:
+      - key: TMDB_API_KEY
+        sync: false # set in the Render dashboard
+      - key: HOST
+        value: 0.0.0.0
+      - key: NODE_VERSION
+        value: 20
+      # PORT is provided by Render via $PORT; server should bind to process.env.PORT
+
+  - type: static
+    name: movie-frontend
+    rootDir: .
+    buildCommand: npm run build
+    staticPublishPath: dist
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: VITE_API_BASE_URL
+        sync: false
+    # Set this after the backend is live: VITE_API_BASE_URL=https://<your-backend>.onrender.com/api
+    # Add it in the Render dashboard under Environment for this Static Site.
+
+# Notes:
+# - If you need persistent storage for downloads on Render, attach a Persistent Disk
+#   to the backend service in the dashboard (paid feature). Choose a mount path used by your code.
+# - Ensure CORS on the backend allows the frontend domain once it’s deployed.
